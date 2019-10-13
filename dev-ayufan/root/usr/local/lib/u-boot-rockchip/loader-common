@@ -1,0 +1,117 @@
+#!/bin/bash
+
+if [[ "$(id -u)" -ne "0" ]]; then
+    echo "This script requires root."
+    exit 1
+fi
+
+if ! which nandwrite &>/dev/null; then
+    echo "Install mtd-utils with 'apt-get install mtd-utils'"
+    exit 1
+fi
+
+if ! which flash_erase &>/dev/null; then
+    echo "Install mtd-utils with 'apt-get install mtd-utils'"
+    exit 1
+fi
+
+if ! PACKAGE_NAME=$(dpkg -S "$0" | cut -d: -f1); then
+    exit "Unknown package installed."
+    exit 1
+fi
+
+if ! debsums -s "${PACKAGE_NAME}"; then
+    echo "Verification of '${PACKAGE_NAME}' failed."
+    echo "Your disk might have got corrupted."
+    if [[ -z "IGNORE_VERIFICATION" ]]; then
+        echo "Use 'export IGNORE_VERIFICATION=1'"
+        exit 1
+    fi
+fi
+
+case "$PACKAGE_NAME" in
+    *-rockchip-rock64-*)
+        SD_LOADER=/usr/lib/u-boot-rock64/rksd_loader.img
+        SPI_LOADER=/usr/lib/u-boot-rock64/rksd_loader.img
+        BOARD=rock64
+        ;;
+
+    *-rockchip-rockpro64-*)
+        SD_LOADER=/usr/lib/u-boot-rockpro64/rksd_loader.img
+        SPI_LOADER=/usr/lib/u-boot-rockpro64/rkspi_loader.img
+        BOARD=rockpro64
+        ;;
+
+    *-rockchip-pinebookpro-*)
+        SD_LOADER=/usr/lib/u-boot-pinebookpro/rksd_loader.img
+        SPI_LOADER=/usr/lib/u-boot-pinebookpro/rkspi_loader.img
+        BOARD=pinebookpro
+        ;;
+
+    *-rockchip-rockpi4b-*)
+        SD_LOADER=/usr/lib/u-boot-rockpi4b/rksd_loader.img
+        SPI_LOADER=/usr/lib/u-boot-rockpi4b/rkspi_loader.img
+        BOARD=rockpi4b
+        ;;
+
+    *)
+        echo "Cannot detect board from $PACKAGE_NAME."
+        exit 1
+        ;;
+esac
+
+if ! grep -qi "$BOARD" /proc/device-tree/compatible; then
+    echo "You are currently running on different board:"
+    echo "$(cat /proc/device-tree/model || true)"
+    echo "It may brick your device or the system unless"
+    echo "you know what are you doing."
+    echo ""
+fi
+
+confirm() {
+    while true; do
+        echo "Type YES to continue or Ctrl-C to abort."
+        read CONFIRM
+        if [[ "$CONFIRM" == "YES" ]]; then
+            break
+        fi
+    done
+}
+
+boot_device() {
+    case "$1" in
+        /dev/mmcblk*p6|/dev/sd*p6|/dev/mapper/loop*p6|/dev/mapper/nvme*p6)
+            # support old partition layout with `boot`
+            echo "${1/p6/p1}"
+            ;;
+
+        /dev/mmcblk*p2|/dev/sd*p2|/dev/mapper/loop*p2|/dev/mapper/nvme*p2)
+            # support new `boot_efi`
+            echo "${1/p2/p1}"
+            ;;
+
+        /dev/mtd*)
+            echo "${1/mtd/mtdblock}"
+            ;;
+
+        *)
+            echo "Cannot detect boot device ($1)." 1>&2
+            exit 1
+            ;;
+    esac
+}
+
+version() {
+    local DEVICE="$(boot_device "$1")"
+
+    echo -n "Current version: "
+    if strings "$DEVICE" | grep "^U-Boot [a-z0-9.-]*$"; then
+        echo -n "Board: "
+        strings "$DEVICE" | grep -E "^board="
+        echo -n "FDT: "
+        strings "$DEVICE" | grep -E "^fdtfile="
+    else
+        echo "not installed on $DEVICE."
+    fi
+    echo
+}
