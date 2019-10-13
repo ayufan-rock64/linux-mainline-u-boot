@@ -1,0 +1,10 @@
+BL31 ?= tmp/rkbin/bin/rk35/rk3588_bl31_v1.40.elf
+BOARD_CHIP ?= rk3588
+UBOOT_TPL =
+ROCKCHIP_TPL ?= tmp/rkbin/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.12.bin
+RKDEV_LOADER_BIN ?= tmp/rkbin/loaders/rk3588_spl_loader_v1.12.112.bin
+LOADER_FLASH ?= rksd_loader
+IMAGES ?= flash-spi erase-spi
+LOADERS ?= rksd_loader rkspi_loader
+IDBLOADER_OFFSET ?= 64
+IDBLOADER_SPI_OFFSET ?= 64
