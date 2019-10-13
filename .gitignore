@@ -109,3 +109,4 @@ __pycache__
 
 # moveconfig database
 /moveconfig.db
+tmp/
