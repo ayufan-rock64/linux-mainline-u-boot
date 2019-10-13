@@ -1,0 +1,68 @@
+on: [push]
+
+env:
+  RELEASE_START: 2021 # 2021, as this is latest build by GitLab CI
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04-arm
+    container: ayufan/rock64-dockerfiles:bookworm
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Install binaries
+      run: |
+        apt-get -y update
+        apt-get -y install docker.io \
+          gcc-aarch64-linux-gnu g++-aarch64-linux-gnu \
+          gcc-arm-linux-gnueabi g++-arm-linux-gnueabi \
+          python3-pip
+    - name: Set up QEMU
+      uses: docker/setup-qemu-action@v2
+    - name: Configure ccache
+      run: echo "CCACHE_DIR=$RUNNER_TEMP/ccache" >> $GITHUB_ENV
+    - name: Reset ccache statistics
+      run: ccache -M 0 -F 0
+    - name: Build package
+      run: |
+        export RELEASE=$(($RELEASE_START+$GITHUB_RUN_NUMBER))
+        rm -f ../*.deb
+        ./dev-make all
+    - name: Release package
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        set -x
+
+        export RELEASE=$(($RELEASE_START+$GITHUB_RUN_NUMBER))
+        export RELEASE_NAME="$(./dev-make version BOARD_TARGET=rock64)"
+        export RELEASE_TITLE="$(./dev-make version BOARD_TARGET=rock64)"
+        export DESCRIPTION="$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID"
+
+        github-release release \
+          --tag "${RELEASE_NAME}" \
+          --name "${RELEASE_TITLE}" \
+          --user "${GITHUB_REPOSITORY%/*}" \
+          --repo "${GITHUB_REPOSITORY#*/}" \
+          --description "${DESCRIPTION}" \
+          --target "${GITHUB_SHA}" \
+          --draft
+
+        sleep 3s # allow to update release
+
+        for i in *.deb *.img.xz; do
+          github-release upload \
+            --tag "${RELEASE_NAME}" \
+            --name "$(basename "${i}")" \
+            --user "${GITHUB_REPOSITORY%/*}" \
+            --repo "${GITHUB_REPOSITORY#*/}" \
+            --file "${i}"
+        done
+
+        github-release edit \
+          --tag "${RELEASE_NAME}" \
+          --name "${RELEASE_TITLE}" \
+          --user "${GITHUB_REPOSITORY%/*}" \
+          --repo "${GITHUB_REPOSITORY#*/}" \
+          --description "${DESCRIPTION}"
+
