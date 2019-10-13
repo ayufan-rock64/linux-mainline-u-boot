@@ -1,0 +1,161 @@
+#!/bin/bash
+
+error() {
+    echo "$@" 1>&2
+}
+
+if [[ "$(id -u)" -ne "0" ]]; then
+    error "This script requires root."
+    exit 1
+fi
+
+if ! which nandwrite &>/dev/null; then
+    error "Install mtd-utils with 'apt-get install mtd-utils'"
+    exit 1
+fi
+
+if ! which flash_erase &>/dev/null; then
+    error "Install mtd-utils with 'apt-get install mtd-utils'"
+    exit 1
+fi
+
+if ! PACKAGE_NAME=$(dpkg -S "$0" | cut -d: -f1); then
+    error "Unknown package installed."
+    exit 1
+fi
+
+if ! debsums -s "${PACKAGE_NAME}"; then
+    error "Verification of '${PACKAGE_NAME}' failed."
+    error "Your disk might have got corrupted."
+    if [[ -z "IGNORE_VERIFICATION" ]]; then
+        error "Use 'export IGNORE_VERIFICATION=1'"
+        exit 1
+    fi
+fi
+
+case "$PACKAGE_NAME" in
+    *-rock64-*)
+        SD_LOADER=/usr/lib/u-boot-rock64/rksd_loader.img
+        SPI_LOADER=/usr/lib/u-boot-rock64/rkspi_loader.img
+        SPI_OFFSET=$((64*512))
+        BOARD=pine64,rock64
+        ;;
+
+    *-rockpro64-*)
+        SD_LOADER=/usr/lib/u-boot-rockpro64/rksd_loader.img
+        SPI_LOADER=/usr/lib/u-boot-rockpro64/rkspi_loader.img
+        SPI_OFFSET=0
+        BOARD=pine64,rockpro64
+        ;;
+
+    *-pinebookpro-*)
+        SD_LOADER=/usr/lib/u-boot-pinebookpro/rksd_loader.img
+        SPI_LOADER=/usr/lib/u-boot-pinebookpro/rkspi_loader.img
+        SPI_OFFSET=0
+        BOARD=pine64,pinebookpro
+        ;;
+
+    *-rockpi4b-*)
+        SD_LOADER=/usr/lib/u-boot-rockpi4b/rksd_loader.img
+        SPI_LOADER=/usr/lib/u-boot-rockpi4b/rkspi_loader.img
+        SPI_OFFSET=0
+        BOARD=radxa,rockpi4b
+        ;;
+
+    *-rock5b-*)
+        SD_LOADER=/usr/lib/u-boot-rock5b/rksd_loader.img
+        SPI_LOADER=/usr/lib/u-boot-rock5b/rkspi_loader.img
+        SPI_OFFSET=$((64*512))
+        BOARD=radxa,rock-5b
+        ;;
+
+    *)
+        error "Cannot detect board from $PACKAGE_NAME."
+        exit 1
+        ;;
+esac
+
+confirm() {
+    while true; do
+        echo "Type YES to continue or Ctrl-C to abort."
+        read CONFIRM
+        if [[ "$CONFIRM" == "YES" ]]; then
+            break
+        fi
+    done
+}
+
+boot_device() {
+    case "$1" in
+        /dev/mmcblk*p6|/dev/sd*p6|/dev/mapper/loop*p6|/dev/mapper/nvme*p6)
+            # support old partition layout with `boot`
+            echo "${1/p6/p1}"
+            ;;
+
+        /dev/mmcblk*p2|/dev/sd*p2|/dev/mapper/loop*p2|/dev/mapper/nvme*p2)
+            # support new `boot_efi`
+            echo "${1/p2/p1}"
+            ;;
+
+        /dev/mtd*)
+            echo "${1/mtd/mtdblock}"
+            ;;
+
+        *)
+            echo "Cannot detect boot device ($1)." 1>&2
+            exit 1
+            ;;
+    esac
+}
+
+version2() {
+    echo "$1:"
+    local match=$(strings "$2" | grep -m 3 -E "^board=|^fdtfile=|^U-Boot [0-9]*.[0-9]*-[a-z0-9.-]* \(")
+    if [[ -n "$match" ]]; then
+        echo "- Version: $(echo "$match" | grep -E "^U-Boot ")"
+        echo "- Board: $(echo "$match" | grep -E "^board=")"
+        echo "- FDT: $(echo "$match" | grep -E "^fdtfile=")"
+    else
+        echo "- Not installed on $2."
+    fi
+    echo
+}
+
+version() {
+    version2 "Current" "$(boot_device "$1")"
+}
+
+find_mtd() {
+    for mtd in /sys/class/mtd/mtd?; do
+        local offset=0
+        [[ ! -e "$mtd/offset" ]] || offset=$(cat "$mtd/offset")
+        local size=$(cat "$mtd/size")
+
+        [[ $offset -le $SPI_OFFSET ]] || continue
+        [[ $(($offset+$size)) -ge $(($SPI_OFFSET+$SPI_SIZE)) ]] || continue
+
+        MTD=$(basename "$mtd")
+        MTD_DEV="/dev/$MTD"
+        MTD_OFFSET="$(($SPI_OFFSET-$offset))"
+        return 0
+    done
+
+    error "Could not find MTD device to wrote $SPI_SIZE bytes at $SPI_OFFSET."
+    return 1
+}
+
+if ! grep -qi "$BOARD" /proc/device-tree/compatible; then
+    error "You are currently running on different board:"
+    error "$(cat /proc/device-tree/model || true)"
+    error "It may brick your device or the system unless"
+    error "you know what are you doing."
+    error ""
+    confirm
+fi
+
+if [[ -f "$SPI_LOADER" ]]; then
+    SPI_SIZE=$(stat -c%s "$SPI_LOADER")
+elif [[ -n "$SPI_LOADER" ]]; then
+    error "The '$SPI_LOADER' is missing."
+    SPI_SIZE=0
+fi

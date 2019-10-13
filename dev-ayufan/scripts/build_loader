@@ -1,0 +1,46 @@
+#!/bin/bash
+
+if [[ $# -ne 6 ]]; then
+  echo "usage: $0 <output-img> <idbloader.img> <idbloader-offset> <uboot-dir> <config-name> <block-size>"
+  exit 1
+fi
+
+set -eo pipefail
+
+OUTPUT="$1"
+IDBLOADER="$2"
+IDBLOADER_OFFSET="$3"
+UBOOT_DIR="$4"
+UBOOT_CONFIG="$5"
+BLOCK_SIZE="$6"
+
+eval $(cat "$UBOOT_DIR/.config" | grep "^$UBOOT_CONFIG=")
+UBOOT_OFFSET="${!UBOOT_CONFIG}"
+if [[ -z "$UBOOT_OFFSET" ]]; then
+  echo "The '${UBOOT_CONFIG}' is undefined."
+  exit 1
+fi
+
+IDBLOADER_SIZE=$(stat -c%s "$IDBLOADER")
+
+echo "IDBLOADER_OFFSET=${IDBLOADER_OFFSET}"
+echo "UBOOT_OFFSET=${UBOOT_OFFSET}"
+echo "BLOCK_SIZE=${BLOCK_SIZE}"
+
+if [[ $((IDBLOADER_SIZE+IDBLOADER_OFFSET*BLOCK_SIZE)) -gt $((UBOOT_OFFSET*BLOCK_SIZE)) ]]; then
+	echo "Cannot write u-boot.itb at $UBOOT_OFFSET, since it will overlap with idbloader.img"
+	exit 1
+fi
+
+cp "$IDBLOADER" "$OUTPUT.tmp"
+echo "Appending u-boot.itb at $((UBOOT_OFFSET-IDBLOADER_OFFSET)), block size $BLOCK_SIZE..."
+dd if="$UBOOT_DIR/u-boot.itb" of="$OUTPUT.tmp" seek=$((UBOOT_OFFSET-IDBLOADER_OFFSET)) bs="$BLOCK_SIZE" conv=notrunc
+
+SIZE=$(stat -c%s "$OUTPUT.tmp")
+MAX_SIZE=$((4*1024*1024-IDBLOADER_OFFSET*BLOCK_SIZE))
+
+if [[ $SIZE -gt $MAX_SIZE ]]; then
+	echo "The resulting image is $SIZE which is larger than $MAX_SIZE."
+	exit 1
+fi
+mv "$OUTPUT.tmp" "$OUTPUT"
