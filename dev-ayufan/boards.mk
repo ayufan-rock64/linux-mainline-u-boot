@@ -33,9 +33,8 @@ LOADERS ?= rksd_loader rkspi_loader
 
 else ifeq (rockpi4b,$(BOARD_TARGET))
 
-UBOOT_DEFCONFIG ?= rockpi4b-rk3399_defconfig
-UBOOT_TPL ?= tmp/rkbin/rk33/rk3399_ddr_933MHz_v1.19.bin
-BL31 ?= tmp/rkbin/rk33/rk3399_bl31_v1.25.elf
+UBOOT_DEFCONFIG ?= rock-pi-4-rk3399_defconfig
+BL31 ?= tmp/atf/rk3399/22d12c4148c373932a7a81e5d1c59a767e143ac2.elf
 BOARD_CHIP ?= rk3399
 LOADER_BIN ?= tmp/rkbin/rk33/rk3399_loader_v1.10.112_support_1CS.bin
 IMAGES ?= flash-spi erase-spi
