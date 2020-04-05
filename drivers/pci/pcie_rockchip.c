@@ -277,7 +277,9 @@ static int rockchip_pcie_init_port(struct udevice *dev)
 		goto err_exit_phy;
 	}
 
-	udelay(10);
+	// TODO(ayufan):
+	// inject delay to increase compatibility with nvme
+	mdelay(100);
 
 	ret = reset_deassert(&priv->pm_rst);
 	if (ret) {
