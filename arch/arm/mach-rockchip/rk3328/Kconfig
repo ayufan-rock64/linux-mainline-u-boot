@@ -10,6 +10,11 @@ config TARGET_EVB_RK3328
 	  with full function and phisical connectors support like
 	  usb2.0 host ports, LVDS, JTAG, MAC, SDcard, HDMI, USB-2-serial...
 
+config TARGET_ROCK64_RK3328
+	bool "Pine64 Rock64 board"
+	help
+	  Rock64 is SBC produced by Pine64
+
 endchoice
 
 config ROCKCHIP_BOOT_MODE_REG
@@ -40,5 +45,6 @@ config TPL_STACK
 	default 0xff098000
 
 source "board/rockchip/evb_rk3328/Kconfig"
+source "board/pine64/rock64_rk3328/Kconfig"
 
 endif
