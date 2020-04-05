@@ -28,6 +28,17 @@
 		pwms = <&pwm0 0 740740 0>;
 	};
 
+	config {
+		u-boot,spl-payload-offset = <0x80000>; /* @ 512KB */
+	};
+
+	clkin_gmac: external-gmac-clock {
+		compatible = "fixed-clock";
+		clock-frequency = <125000000>;
+		clock-output-names = "clkin_gmac";
+		#clock-cells = <0>;
+	};
+
 	edp_panel: edp-panel {
 		compatible = "boe,nv140fhmn49";
 		backlight = <&backlight>;
