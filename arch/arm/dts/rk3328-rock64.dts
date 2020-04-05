@@ -199,6 +199,14 @@
 		vcc5-supply = <&vcc_io>;
 		vcc6-supply = <&vcc_sys>;
 
+		led1 {
+			label = "diy";
+		};
+
+		led2 {
+			label = "work";
+		};
+
 		regulators {
 			vdd_logic: DCDC_REG1 {
 				regulator-name = "vdd_logic";
