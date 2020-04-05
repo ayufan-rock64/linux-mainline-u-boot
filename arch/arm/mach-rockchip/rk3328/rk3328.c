@@ -22,6 +22,10 @@ DECLARE_GLOBAL_DATA_PTR;
 const char * const boot_devices[BROM_LAST_BOOTSOURCE + 1] = {
 	[BROM_BOOTSOURCE_EMMC] = "/rksdmmc@ff520000",
 	[BROM_BOOTSOURCE_SD] = "/rksdmmc@ff500000",
+	[BROM_BOOTSOURCE_SPINOR] = "/spi@ff190000/spiflash@0",
+
+	// TODO(ayufan): ease debugging
+	[BROM_BOOTSOURCE_USB] = "/spi@ff190000/spiflash@0",
 };
 
 static struct mm_region rk3328_mem_map[] = {

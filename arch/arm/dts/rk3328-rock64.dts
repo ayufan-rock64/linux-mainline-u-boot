@@ -10,6 +10,10 @@
 	model = "Pine64 Rock64";
 	compatible = "pine64,rock64", "rockchip,rk3328";
 
+	aliases {
+		spi0 = &spi0;
+	};
+
 	chosen {
 		stdout-path = "serial2:1500000n8";
 	};
@@ -353,6 +357,8 @@
 	status = "okay";
 
 	spiflash@0 {
+		u-boot,dm-pre-reloc;
+
 		compatible = "jedec,spi-nor";
 		reg = <0>;
 
