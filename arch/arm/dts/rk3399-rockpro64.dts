@@ -11,6 +11,14 @@
 / {
 	model = "Pine64 RockPro64 v2.1";
 	compatible = "pine64,rockpro64-v2.1", "pine64,rockpro64", "rockchip,rk3399";
+
+	chosen {
+		stdout-path = "serial2:1500000n8";
+	};
+
+	config {
+		u-boot,spl-payload-offset = <0x80000>; /* @ 512KB */
+	};
 };
 
 &i2c1 {
@@ -28,8 +36,6 @@
 		};
 	};
 };
-
-/delete-node/ spi1;
 
 &spi_flash {
 	partitions {
