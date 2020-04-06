@@ -51,6 +51,7 @@
 &usb_host0_xhci {
 	vbus-supply = <&vcc_host_5v>;
 	status = "okay";
+	dr_mode = "host";
 };
 
 /*
