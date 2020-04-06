@@ -109,6 +109,11 @@ config TARGET_ROC_PC_RK3399
 	   * wide voltage input(5V-15V), dual cell battery
 	   * Wifi/BT accessible via expansion board M.2
 
+config TARGET_PINEBOOK_PRO_RK3399
+	bool "Pine64 Rockpro64 board"
+	help
+	  Rockro64 is SBC produced by Pine64. Key features
+
 endchoice
 
 config ROCKCHIP_BOOT_MODE_REG
