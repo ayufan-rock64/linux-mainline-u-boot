@@ -159,6 +159,7 @@ endif # BOOTCOUNT_LIMIT
 source "board/firefly/roc-pc-rk3399/Kconfig"
 source "board/google/gru/Kconfig"
 source "board/pine64/pinebook-pro-rk3399/Kconfig"
+source "board/pine64/pinebook_pro_rk3399/Kconfig"
 source "board/pine64/rockpro64_rk3399/Kconfig"
 source "board/rockchip/evb_rk3399/Kconfig"
 source "board/theobroma-systems/puma_rk3399/Kconfig"
