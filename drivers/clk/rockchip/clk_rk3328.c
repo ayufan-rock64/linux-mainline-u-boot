@@ -635,6 +635,7 @@ static ulong rk3328_clk_get_rate(struct clk *clk)
 		rate = rk3328_spi_get_clk(priv->cru);
 		break;
 	default:
+		debug("%s: unsupported clk %ld\n", __func__, clk->id);
 		return -ENOENT;
 	}
 
@@ -710,6 +711,7 @@ static ulong rk3328_clk_set_rate(struct clk *clk, ulong rate)
 	case SCLK_USB3OTG_SUSPEND:
 		return 0;
 	default:
+		debug("%s: unsupported clk %ld\n", __func__, clk->id);
 		return -ENOENT;
 	}
 
