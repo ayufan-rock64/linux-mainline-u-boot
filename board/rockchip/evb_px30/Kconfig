@@ -4,7 +4,7 @@ config SYS_BOARD
 	default "evb_px30"
 
 config SYS_VENDOR
-	default "rockchip"
+	default "pine64"
 
 config SYS_CONFIG_NAME
 	default "evb_px30"
