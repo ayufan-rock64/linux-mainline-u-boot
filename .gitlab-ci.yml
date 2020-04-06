@@ -2,7 +2,7 @@ image: ayufan/rock64-dockerfiles:x86_64
 
 variables:
   GITHUB_USER: ayufan-rock64
-  GITHUB_REPO: linux-u-boot
+  GITHUB_REPO: linux-mainline-u-boot
 
   USE_CCACHE: "true"
   CCACHE_DIR: "/data/shared/ccache"
@@ -17,7 +17,7 @@ build:
   only: [branches]
   script:
     - rm -f ../*.deb
-    - export RELEASE=$((1000+$CI_PIPELINE_IID))
+    - export RELEASE=$((2000+$CI_PIPELINE_IID))
     - ./dev-make BOARD_TARGET=rock64 -j5
     - ./dev-make BOARD_TARGET=rockpro64 -j5
     - ./dev-make BOARD_TARGET=pinebookpro -j5
