@@ -9,12 +9,29 @@
 #include <syscon.h>
 #include <asm/io.h>
 #include <asm/arch-rockchip/clock.h>
+#include <asm/arch-rockchip/gpio.h>
 #include <asm/arch-rockchip/grf_rk3399.h>
 #include <asm/arch-rockchip/hardware.h>
 #include <asm/arch-rockchip/misc.h>
+#include <dt-bindings/pinctrl/rockchip.h>
 
 #define GRF_IO_VSEL_BT565_SHIFT 0
 #define PMUGRF_CON0_VSEL_SHIFT 8
+
+int board_early_init_f(void)
+{
+#define GPIO0_BASE  0xff720000
+
+	struct rockchip_gpio_regs * const gpio0 = (void *)GPIO0_BASE;
+
+	// set GPIO0_A2/B3 to GPIO_ACTIVE_HIGH
+	// set GPIO0_A2/B3 to OUTPUT
+	int mask = (1UL << RK_PA2) | (1UL << RK_PB3);
+	setbits_le32(&gpio0->swport_dr, mask);
+	setbits_le32(&gpio0->swport_ddr, mask);
+
+	return 0;
+}
 
 #ifdef CONFIG_MISC_INIT_R
 static void setup_iodomain(void)
