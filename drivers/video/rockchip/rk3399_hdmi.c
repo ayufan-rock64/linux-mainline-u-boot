@@ -59,8 +59,20 @@ static int rk3399_hdmi_probe(struct udevice *dev)
 	return rk_hdmi_probe(dev);
 }
 
+static bool rk3999_hdmi_mode_valid(struct udevice *dev, const struct display_timing *mode)
+{
+	if (mode->hactive.typ < 640 || mode->hactive.typ > CONFIG_VIDEO_ROCKCHIP_MAX_XRES)
+		return false;
+
+	if (mode->vactive.typ < 480 || mode->vactive.typ > CONFIG_VIDEO_ROCKCHIP_MAX_YRES)
+		return false;
+
+	return true;
+}
+
 static const struct dm_display_ops rk3399_hdmi_ops = {
 	.read_edid = rk_hdmi_read_edid,
+	.mode_valid = rk3999_hdmi_mode_valid,
 	.enable = rk3399_hdmi_enable,
 };
 
