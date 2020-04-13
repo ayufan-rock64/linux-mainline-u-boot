@@ -161,9 +161,7 @@ int ahci_reset(void __iomem *base)
 
 	if (i == 0) {
 		printf("controller reset failed (0x%x)\n", tmp);
-
-		// TODO: Marvell 88SE9230 cannot be reset properly
-		// return -1;
+		return -1;
 	}
 
 	return 0;
