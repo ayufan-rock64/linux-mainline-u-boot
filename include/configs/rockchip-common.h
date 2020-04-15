@@ -34,7 +34,8 @@
 		func(SCSI, scsi, 0) \
 		func(SCSI, scsi, 1) \
 		func(SCSI, scsi, 2) \
-		func(SCSI, scsi, 3)
+		func(SCSI, scsi, 3) \
+		func(SCSI, scsi, 4)
 #else
 	#define BOOT_TARGET_SCSI(func)
 #endif
