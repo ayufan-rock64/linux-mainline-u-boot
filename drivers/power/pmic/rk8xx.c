@@ -161,7 +161,7 @@ static int rk8xx_bind(struct udevice *dev)
 	if (!children)
 		debug("%s: %s - no child found\n", __func__, dev->name);
 
-	children = pmic_bind_children(dev, dev->node, led_info);
+	children = pmic_bind_children(dev, dev_ofnode(dev), led_info);
 	if (!children)
 		debug("%s: %s - no child found\n", __func__, dev->name);
 
