@@ -580,31 +580,6 @@ static ulong rk3328_saradc_set_clk(struct rk3328_cru *cru, uint hz)
 	return rk3328_saradc_get_clk(cru);
 }
 
-static ulong rk3328_spi_get_clk(struct rk3328_cru *cru)
-{
-	u32 div, val;
-
-	val = readl(&cru->clksel_con[24]);
-	div = (val & CLK_SPI_DIV_CON_MASK) >> CLK_SPI_DIV_CON_SHIFT;
-
-	return DIV_TO_RATE(OSC_HZ, div);
-}
-
-static ulong rk3328_spi_set_clk(struct rk3328_cru *cru, uint hz)
-{
-	u32 src_clk_div;
-
-	src_clk_div = GPLL_HZ / hz;
-	assert(src_clk_div < 128);
-
-	rk_clrsetreg(&cru->clksel_con[24],
-		     CLK_PWM_PLL_SEL_MASK | CLK_PWM_DIV_CON_MASK,
-		     CLK_PWM_PLL_SEL_GPLL << CLK_PWM_PLL_SEL_SHIFT |
-		     (src_clk_div - 1) << CLK_PWM_DIV_CON_SHIFT);
-
-	return rk3328_spi_get_clk(cru);
-}
-
 static ulong rk3328_clk_get_rate(struct clk *clk)
 {
 	struct rk3328_clk_priv *priv = dev_get_priv(clk->dev);
@@ -673,9 +648,6 @@ static ulong rk3328_clk_set_rate(struct clk *clk, ulong rate)
 		break;
 	case SCLK_SARADC:
 		ret = rk3328_saradc_set_clk(priv->cru, rate);
-		break;
-	case SCLK_SPI:
-		ret = rk3328_spi_set_clk(priv->cru, rate);
 		break;
 	case DCLK_LCDC:
 	case SCLK_PDM:
