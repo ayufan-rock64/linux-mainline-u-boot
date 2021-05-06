@@ -1,1 +1,1 @@
-obj-y	+= pinebook_pro-rk3399.o
+obj-y	+= pinebook-pro-rk3399.o

@@ -43,7 +43,7 @@ LOADERS ?= rksd_loader rkspi_loader
 
 else ifeq (pinebookpro,$(BOARD_TARGET))
 
-UBOOT_DEFCONFIG ?= pinebook_pro-rk3399_defconfig
+UBOOT_DEFCONFIG ?= pinebook-pro-rk3399_defconfig
 BL31 ?= tmp/atf/rk3399/22d12c4148c373932a7a81e5d1c59a767e143ac2.elf
 BOARD_CHIP ?= rk3399
 LOADER_BIN ?= tmp/rkbin/rk33/rk3399_loader_v1.10.112_support_1CS.bin
