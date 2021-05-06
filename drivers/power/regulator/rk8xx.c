@@ -1106,7 +1106,7 @@ static int rk8xx_led_bind(struct udevice *dev)
 {
 	struct led_uc_plat *uc_pdata;
 
-	uc_pdata = dev_get_uclass_platdata(dev);
+	uc_pdata = dev_get_uclass_plat(dev);
 	uc_pdata->label = dev_read_string(dev, "label");
 
 	return 0;
