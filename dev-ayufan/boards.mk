@@ -52,6 +52,11 @@ LOADER_FLASH ?= rksd_loader
 IMAGES ?= flash-spi erase-spi
 LOADERS ?= rksd_loader rkspi_loader
 
+
+else ifeq (qemu-arm64,$(BOARD_TARGET))
+
+UBOOT_DEFCONFIG ?= qemu_arm64_defconfig
+
 else
 $(error Unsupported BOARD_TARGET)
 endif
