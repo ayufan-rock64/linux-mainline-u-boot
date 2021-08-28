@@ -71,7 +71,7 @@
 	"scriptaddr=0x40200000\0" \
 	"pxefile_addr_r=0x40300000\0" \
 	"kernel_addr_r=0x40400000\0" \
-	"ramdisk_addr_r=0x44000000\0" \
+	"ramdisk_addr_r=0x48000000\0" \
 	BOOTENV
 
 #endif /* __CONFIG_H */
