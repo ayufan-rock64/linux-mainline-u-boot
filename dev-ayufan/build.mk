@@ -13,8 +13,10 @@ tmp/u-boot-$(BOARD_TARGET)/.config: configs/$(UBOOT_DEFCONFIG)
 $(UBOOT_OUTPUT_DIR):
 	mkdir -p $@
 
-$(UBOOT_OUTPUT_DIR)/u-boot.itb: .scmversion $(UBOOT_OUTPUT_DIR) tmp/u-boot-$(BOARD_TARGET)/.config $(BL31)
+$(UBOOT_OUTPUT_DIR)/u-boot.bin: .scmversion $(UBOOT_OUTPUT_DIR) tmp/u-boot-$(BOARD_TARGET)/.config $(BL31)
 	$(UBOOT_MAKE) -j $$(nproc)
+
+$(UBOOT_OUTPUT_DIR)/u-boot.itb: $(UBOOT_OUTPUT_DIR)/u-boot.bin
 	$(UBOOT_MAKE) -j $$(nproc) u-boot.itb
 
 $(UBOOT_TPL) $(UBOOT_SPL): $(UBOOT_OUTPUT_DIR)/u-boot.itb
@@ -52,6 +54,9 @@ u-boot-menuconfig:
 
 .PHONY: u-boot-build		# compile u-boot
 u-boot-build: $(UBOOT_LOADERS)
+
+.PHONY: u-boot-bin
+u-boot-bin: $(UBOOT_OUTPUT_DIR)/u-boot.bin
 
 .PHONY: u-boot-clear
 u-boot-clear:
