@@ -36,11 +36,11 @@ build:
         --target "${CI_COMMIT_SHA}" \
         --draft
 
-      for i in *.deb *.img.xz; do
-        github-release upload \
-          --tag "${RELEASE_NAME}" \
-          --name "${i}" \
-          --file "${i}"
+    //  for i in *.deb *.img.xz; do
+     //   github-release upload \
+     //     --tag "${RELEASE_NAME}" \
+     //     --name "${i}" \
+     //     --file "${i}"
       done
 
       github-release edit \
