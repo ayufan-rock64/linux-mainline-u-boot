@@ -29,10 +29,3 @@ build:
       export RELEASE_TITLE="$(./dev-make version BOARD_TARGET=rock64)"
       export DESCRIPTION="$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID"
 
-      github-release release \
-        --tag "${RELEASE_NAME}" \
-        --name "${RELEASE_TITLE}" \
-        --description "${DESCRIPTION}" \
-        --target "${CI_COMMIT_SHA}" \
-        --draft
-
