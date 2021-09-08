@@ -1,7 +1,7 @@
 image: ayufan/rock64-dockerfiles:x86_64
 
 variables:
-  GITHUB_USER: ayufan-rock64
+  GITHUB_USER: ThreeFiveDisplays-RockPro64
   GITHUB_REPO: linux-mainline-u-boot
 
   USE_CCACHE: "true"
