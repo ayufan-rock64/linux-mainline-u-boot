@@ -18,14 +18,29 @@ build:
   script:
     - rm -f ../*.deb
     - export RELEASE=$((2000+$CI_PIPELINE_IID))
-    - ./dev-make BOARD_TARGET=rock64 -j5
     - ./dev-make BOARD_TARGET=rockpro64 -j5
-    - ./dev-make BOARD_TARGET=pinebookpro -j5
-    - ./dev-make BOARD_TARGET=rockpi4b -j5
     - |
       set -x
 
       export RELEASE_NAME="$(./dev-make version BOARD_TARGET=rock64)"
       export RELEASE_TITLE="$(./dev-make version BOARD_TARGET=rock64)"
       export DESCRIPTION="$CI_PROJECT_URL/pipelines/$CI_PIPELINE_ID"
+      
+
+      github-release release \
+        --tag "${RELEASE_NAME}" \
+        --name "${RELEASE_TITLE}" \
+        --description "${DESCRIPTION}" \
+        --target "${CI_COMMIT_SHA}" \
+        --draft
+      for i in *.deb *.img.xz; do
+        github-release upload \
+          --tag "${RELEASE_NAME}" \
+          --name "${i}" \
+          --file "${i}"
+      done
+      github-release edit \
+        --tag "${RELEASE_NAME}" \
+        --name "${RELEASE_TITLE}" \
+        --description "${DESCRIPTION}"
 
