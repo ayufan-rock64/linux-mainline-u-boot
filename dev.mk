@@ -1,7 +1,6 @@
 export RELEASE ?= 1
 
 all:
-	@echo $(TARGET_HOST)
 
 include dev-ayufan/boards.mk
 include dev-ayufan/build.mk
