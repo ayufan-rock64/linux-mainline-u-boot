@@ -4,7 +4,7 @@ $(UBOOT_OUTPUT_DIR)/%/boot.scr: dev-ayufan/blobs/$(BOARD_TARGET)/%.cmd
 
 $(UBOOT_OUTPUT_DIR)/%/boot.img: $(UBOOT_OUTPUT_DIR)/%/boot.scr $(UBOOT_LOADERS)
 	dd if=/dev/zero of=$@.tmp bs=1M count=32
-	mkfs.vfat -n "u-boot-script" $@.tmp
+	mkfs.vfat -n "u-boot-scr" $@.tmp
 	mcopy -sm -i $@.tmp $^ ::
 	mv $@.tmp $@
 
