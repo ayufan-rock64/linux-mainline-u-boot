@@ -27,11 +27,7 @@ jobs:
       run: |
         export RELEASE=$(($RELEASE_START+$GITHUB_RUN_NUMBER))
         rm -f ../*.deb
-        ./dev-make BOARD_TARGET=rock64 -j5
-        ./dev-make BOARD_TARGET=rockpro64 -j5
-        ./dev-make BOARD_TARGET=pinebookpro -j5
-        ./dev-make BOARD_TARGET=rockpi4b -j5
-        ./dev-make BOARD_TARGET=rock5b -j5
+        ./dev-make
     - name: Release package
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

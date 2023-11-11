@@ -2,7 +2,19 @@ export RELEASE ?= 1
 
 all:
 
-include dev-ayufan/boards.mk
+ifeq (,$(BOARD_TARGET))
+
+all: $(addsuffix -board,$(notdir $(wildcard dev-ayufan/blobs/*)))
+
+boards:
+	@echo $(addsuffix -board,$(notdir $(wildcard dev-ayufan/blobs/*)))
+
+%-board:
+	./dev-make BOARD_TARGET=$(patsubst %-board,%,$@)
+
+else
+
+include dev-ayufan/blobs/$(BOARD_TARGET)/board.mk
 include dev-ayufan/build.mk
 include dev-ayufan/deps.mk
 include dev-ayufan/images.mk
@@ -22,3 +34,5 @@ deploy: u-boot-package
 	scp u-boot-$(BOARD_TARGET)-$(RELEASE_NAME).deb root@$(TARGET_HOST):
 	ssh root@$(TARGET_HOST) apt install ./u-boot-$(BOARD_TARGET)-$(RELEASE_NAME).deb
 	ssh root@$(TARGET_HOST) rock64_upgrade_bootloader.sh
+
+endif
