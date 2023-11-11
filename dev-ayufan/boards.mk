@@ -52,7 +52,7 @@ LOADER_FLASH ?= rksd_loader
 IMAGES ?= flash-spi erase-spi
 LOADERS ?= rksd_loader rkspi_loader
 
-else ifeq (rockpi5b,$(BOARD_TARGET))
+else ifeq (rock5b,$(BOARD_TARGET))
 
 UBOOT_DEFCONFIG ?= rock5b-rk3588_defconfig
 BL31 ?= tmp/rkbin/bin/rk35/rk3588_bl31_v1.40.elf

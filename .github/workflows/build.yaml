@@ -31,7 +31,7 @@ jobs:
         ./dev-make BOARD_TARGET=rockpro64 -j5
         ./dev-make BOARD_TARGET=pinebookpro -j5
         ./dev-make BOARD_TARGET=rockpi4b -j5
-        ./dev-make BOARD_TARGET=rockpi5b -j5
+        ./dev-make BOARD_TARGET=rock5b -j5
     - name: Release package
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
