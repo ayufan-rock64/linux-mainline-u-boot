@@ -1,0 +1,11 @@
+UBOOT_DEFCONFIG ?= quartz64-a-rk3566_defconfig
+BL31 ?= tmp/rkbin/bin/rk35/rk3568_bl31_v1.43.elf
+BOARD_CHIP ?= rk3568
+UBOOT_TPL =
+ROCKCHIP_TPL ?= tmp/rkbin/bin/rk35/rk3568_ddr_1560MHz_v1.17.bin
+LOADER_OFFSET ?= 64
+LOADER_FLASH ?= rksd_loader
+IMAGES ?= flash-spi erase-spi
+LOADERS ?= rksd_loader rkspi_loader
+RKSD_LOADER ?= idbloader.img
+RKSPI_LOADER ?= idbloader-spi.img
