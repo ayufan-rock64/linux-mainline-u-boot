@@ -7,6 +7,5 @@ LOADER_BIN ?= tmp/rkbin/loaders/rk3588_spl_loader_v1.12.112.bin
 LOADER_OFFSET ?= 64
 LOADER_FLASH ?= rksd_loader
 IMAGES ?= flash-spi erase-spi
-LOADERS ?= rksd_loader rkspi_loader
+LOADERS ?= rksd_loader
 RKSD_LOADER ?= idbloader.img
-RKSPI_LOADER ?= idbloader-spi.img
