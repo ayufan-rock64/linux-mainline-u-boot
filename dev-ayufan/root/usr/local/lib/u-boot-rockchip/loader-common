@@ -44,21 +44,21 @@ case "$PACKAGE_NAME" in
     *-rockpro64-*)
         SD_LOADER=/usr/lib/u-boot-rockpro64/rksd_loader.img
         SPI_LOADER=/usr/lib/u-boot-rockpro64/rkspi_loader.img
-        SPI_OFFSET=$((64*512))
+        SPI_OFFSET=0
         BOARD=pine64,rockpro64
         ;;
 
     *-pinebookpro-*)
         SD_LOADER=/usr/lib/u-boot-pinebookpro/rksd_loader.img
         SPI_LOADER=/usr/lib/u-boot-pinebookpro/rkspi_loader.img
-        SPI_OFFSET=$((64*512))
+        SPI_OFFSET=0
         BOARD=pine64,pinebookpro
         ;;
 
     *-rockpi4b-*)
         SD_LOADER=/usr/lib/u-boot-rockpi4b/rksd_loader.img
         SPI_LOADER=/usr/lib/u-boot-rockpi4b/rkspi_loader.img
-        SPI_OFFSET=$((64*512))
+        SPI_OFFSET=0
         BOARD=radxa,rockpi4b
         ;;
 

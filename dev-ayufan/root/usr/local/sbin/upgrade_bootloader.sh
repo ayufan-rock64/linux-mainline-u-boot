@@ -18,7 +18,7 @@ prompt() {
         methods[$cnt]="dd if=\"$SD_LOADER\" of=\"$MNT_DEV\" iflag=fullblock oflag=direct"
         cnt=$((cnt+1))
         echo "$cnt) Remove bootloader on $MNT_DEV"
-        methods[$cnt]="dd if=/dev/zero of=\"$MNT_DEV\" iflag=fullblock oflag=direct"
+        methods[$cnt]="dd if=/dev/zero of=\"$MNT_DEV\" bs=32768 iflag=fullblock oflag=direct || true"
         cnt=$((cnt+1))
         echo
     done < <(blkid /dev/disk/by-id/{ata,usb,mmc}-* -o device -t PARTLABEL="loader1")
