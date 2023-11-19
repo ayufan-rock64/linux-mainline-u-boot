@@ -75,21 +75,6 @@ case "$PACKAGE_NAME" in
         ;;
 esac
 
-if ! grep -qi "$BOARD" /proc/device-tree/compatible; then
-    error "You are currently running on different board:"
-    error "$(cat /proc/device-tree/model || true)"
-    error "It may brick your device or the system unless"
-    error "you know what are you doing."
-    error ""
-fi
-
-if [[ -f "$SPI_LOADER" ]]; then
-    SPI_SIZE=$(stat -c%s "$SPI_LOADER")
-elif [[ -n "$SPI_LOADER" ]]; then
-    error "The '$SPI_LOADER' is missing."
-    SPI_SIZE=0
-fi
-
 confirm() {
     while true; do
         echo "Type YES to continue or Ctrl-C to abort."
@@ -157,3 +142,19 @@ find_mtd() {
     error "Could not find MTD device to wrote $SPI_SIZE bytes at $SPI_OFFSET."
     return 1
 }
+
+if ! grep -qi "$BOARD" /proc/device-tree/compatible; then
+    error "You are currently running on different board:"
+    error "$(cat /proc/device-tree/model || true)"
+    error "It may brick your device or the system unless"
+    error "you know what are you doing."
+    error ""
+    confirm
+fi
+
+if [[ -f "$SPI_LOADER" ]]; then
+    SPI_SIZE=$(stat -c%s "$SPI_LOADER")
+elif [[ -n "$SPI_LOADER" ]]; then
+    error "The '$SPI_LOADER' is missing."
+    SPI_SIZE=0
+fi
