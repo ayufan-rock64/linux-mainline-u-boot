@@ -6,7 +6,6 @@ UBOOT_MAKE ?= make KBUILD_OUTPUT=$(UBOOT_OUTPUT_DIR) BL31=$(realpath $(BL31)) RO
 UBOOT_LOADERS ?= $(addprefix $(UBOOT_OUTPUT_DIR)/, $(addsuffix .img, $(LOADERS)))
 UBOOT_TPL ?= $(UBOOT_OUTPUT_DIR)/tpl/u-boot-tpl.bin
 UBOOT_SPL ?= $(UBOOT_OUTPUT_DIR)/spl/u-boot-spl.bin
-UBOOT_OFFSET ?= 0x200
 
 tmp/u-boot-$(BOARD_TARGET)/.config: configs/$(UBOOT_DEFCONFIG)
 	$(UBOOT_MAKE) $(UBOOT_DEFCONFIG)
@@ -23,36 +22,14 @@ $(UBOOT_OUTPUT_DIR)/u-boot.itb: $(UBOOT_OUTPUT_DIR)/u-boot.bin
 $(UBOOT_TPL) $(UBOOT_SPL): $(UBOOT_OUTPUT_DIR)/u-boot.itb
 
 $(UBOOT_OUTPUT_DIR)/rksd_loader.img: $(UBOOT_OUTPUT_DIR)/u-boot.itb $(UBOOT_TPL) $(UBOOT_SPL)
-ifeq (,$(RKSD_LOADER))
-	$(UBOOT_OUTPUT_DIR)/tools/mkimage -n $(BOARD_CHIP) -T rksd -d $(word 1,$(UBOOT_TPL) $(UBOOT_SPL)) $@.tmp
-ifneq (,$(UBOOT_TPL))
-	cat $(UBOOT_SPL) >> $@.tmp
-endif
-else
-	cp $(UBOOT_OUTPUT_DIR)/$(RKSD_LOADER) $@.tmp
-endif
-	CUR_SIZE=$$(stat -c%s $@.tmp); MAX_SIZE=$$((($$(($(UBOOT_OFFSET)))-64)*512)); \
-		[ $$CUR_SIZE -le $$MAX_SIZE ] || ( echo "Too big $$CUR_SIZE < $$MAX_SIZE" && exit 1 )
-	dd if=$(UBOOT_OUTPUT_DIR)/u-boot.itb of=$@.tmp seek=$$(($$(($(UBOOT_OFFSET)))-64)) conv=notrunc
-	mv $@.tmp $@
+	grep CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR= $(UBOOT_OUTPUT_DIR)/.config
+	dev-ayufan/scripts/build_loader $@ $(UBOOT_OUTPUT_DIR)/idbloader.img $(IDBLOADER_OFFSET) $(UBOOT_OUTPUT_DIR) CONFIG_SYS_MMCSD_RAW_MODE_U_BOOT_SECTOR 512
 
 $(UBOOT_OUTPUT_DIR)/rkspi_loader.img: $(UBOOT_OUTPUT_DIR)/u-boot.itb $(UBOOT_TPL) $(UBOOT_SPL)
-ifeq (,$(RKSPI_LOADER))
-	$(UBOOT_OUTPUT_DIR)/tools/mkimage -n $(BOARD_CHIP) -T rksd -d $(word 1,$(UBOOT_TPL) $(UBOOT_SPL)) $@.tmp
-ifneq (,$(UBOOT_TPL))
-	cat $(UBOOT_SPL) >> $@.tmp
-endif
-else
-	cp $(UBOOT_OUTPUT_DIR)/$(RKSPI_LOADER) $@.tmp
-endif
-	@CUR_SIZE=$$(stat -c%s $@.tmp); MAX_SIZE=$$((($$(($(UBOOT_OFFSET)))-64)*512)); \
-		[ $$CUR_SIZE -le $$MAX_SIZE ] || ( echo "Too big $$CUR_SIZE < $$MAX_SIZE" && exit 1 )
-	# pad every 2k with 2k of zeros
-	for i in $$(seq 1 $$(($$(($$UBOOT_OFFSET))/4))); do dd count=4 status=none; dd if=/dev/zero count=4 status=none; done < $@.tmp > $@.tmp2
-	mv $@.tmp2 $@.tmp
-	# We write at 1024 offset
-	dd if=$(UBOOT_OUTPUT_DIR)/u-boot.itb of=$@.tmp seek=$$(($$(($(UBOOT_OFFSET)))*2)) conv=notrunc
-	mv $@.tmp $@
+	grep CONFIG_SPL_SPI_LOAD=y $(UBOOT_OUTPUT_DIR)/.config
+	grep CONFIG_SYS_SPI_U_BOOT_OFFS= $(UBOOT_OUTPUT_DIR)/.config
+	grep CONFIG_ROCKCHIP_SPI_IMAGE=y $(UBOOT_OUTPUT_DIR)/.config
+	dev-ayufan/scripts/build_loader $@ $(UBOOT_OUTPUT_DIR)/idbloader-spi.img $$(($(IDBLOADER_SPI_OFFSET)*512)) $(UBOOT_OUTPUT_DIR) CONFIG_SYS_SPI_U_BOOT_OFFS 1
 
 .PHONY: u-boot-menuconfig		# edit u-boot config and save as defconfig
 u-boot-menuconfig:

@@ -8,8 +8,8 @@ sf probe
 # or load rksd_loader.img and write it to 8000 offset of spi
 # or fail badly
 
-if size ${devtype} ${devnum}:${distro_bootpart} rksd_loader.img; then
-  load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} rksd_loader.img
+if size ${devtype} ${devnum}:${distro_bootpart} rkspi_loader.img; then
+  load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} rkspi_loader.img
 
   # erase flash
   run blink_power blink_power

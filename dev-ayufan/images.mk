@@ -1,4 +1,4 @@
-$(UBOOT_OUTPUT_DIR)/%/boot.scr: dev-ayufan/blobs/$(BOARD_TARGET)/%.cmd
+$(UBOOT_OUTPUT_DIR)/%/boot.scr: dev-ayufan/chips/$(BOARD_CHIP)/%.cmd
 	mkdir -p $$(dirname $@)
 	mkimage -C none -A arm -T script -d $< $@
 

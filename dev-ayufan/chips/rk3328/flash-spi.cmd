@@ -1,19 +1,19 @@
-setenv blink_power 'led status off; sleep 0.1; led status on'
-setenv blink_standby 'led status off; sleep 0.1; led status on'
+setenv blink_power 'led power off; sleep 0.1; led power on'
+setenv blink_standby 'led standby off; sleep 0.1; led standby on'
 
 # first read existing loader
 run blink_power
 sf probe
 
-# or load rksd_loader.img and write it to 8000 offset of spi
+# or load rkspi_loader.img and write it to 8000 offset of spi
 # or fail badly
 
-if size ${devtype} ${devnum}:${distro_bootpart} rksd_loader.img; then
-  load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} rksd_loader.img
+if size ${devtype} ${devnum}:${distro_bootpart} rkspi_loader.img; then
+  load ${devtype} ${devnum}:${distro_bootpart} ${kernel_addr_r} rkspi_loader.img
 
   # erase flash
   run blink_power blink_power
-  sf erase 0 400000
+  sf erase 8000 3f8000
 
   # write flash
   run blink_power blink_power blink_power

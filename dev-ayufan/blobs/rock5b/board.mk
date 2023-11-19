@@ -1,11 +1,3 @@
+include dev-ayufan/chips/rk3588/board.mk
+
 UBOOT_DEFCONFIG ?= rock5b-rk3588_defconfig
-BL31 ?= tmp/rkbin/bin/rk35/rk3588_bl31_v1.40.elf
-BOARD_CHIP ?= rk3588
-UBOOT_TPL =
-ROCKCHIP_TPL ?= tmp/rkbin/bin/rk35/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.12.bin
-LOADER_BIN ?= tmp/rkbin/loaders/rk3588_spl_loader_v1.12.112.bin
-LOADER_OFFSET ?= 64
-LOADER_FLASH ?= rksd_loader
-IMAGES ?= flash-spi erase-spi
-LOADERS ?= rksd_loader
-RKSD_LOADER ?= idbloader.img

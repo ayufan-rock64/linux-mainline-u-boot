@@ -1,13 +1,16 @@
+RKDEV_OFFSET ?= $(IDBLOADER_OFFSET)
+RKDEV_IMAGE ?= rksd_loader
+
 .PHONY: loader-download-mode
-loader-download-mode: $(LOADER_BIN)
-	rkdeveloptool db $(LOADER_BIN)
+loader-download-mode: $(RKDEV_LOADER_BIN)
+	rkdeveloptool db $(RKDEV_LOADER_BIN)
 	sleep 1s
 
 .PHONY: loader-write-clear
 loader-write-clear:
 	rkdeveloptool rid
 	dd if=/dev/zero of=$(UBOOT_OUTPUT_DIR)/clear.img count=1
-	rkdeveloptool wl $(LOADER_OFFSET) $(UBOOT_OUTPUT_DIR)/clear.img
+	rkdeveloptool wl $(RKDEV_OFFSET) $(UBOOT_OUTPUT_DIR)/clear.img
 ifneq (,$(FULL_WIPE))
 	rkdeveloptool wl 512 $(UBOOT_OUTPUT_DIR)/clear.img
 	rkdeveloptool wl 1024 $(UBOOT_OUTPUT_DIR)/clear.img
@@ -16,10 +19,10 @@ endif
 .PHONY: loader-write-flash
 loader-write-flash:
 	rkdeveloptool rid
-	rkdeveloptool wl $(LOADER_OFFSET) $(UBOOT_OUTPUT_DIR)/$(LOADER_FLASH).img
+	rkdeveloptool wl $(RKDEV_OFFSET) $(UBOOT_OUTPUT_DIR)/$(RKDEV_IMAGE).img
 
 .PHONY: loader-boot		# boot loader over USB
-loader-boot: $(UBOOT_OUTPUT_DIR)/$(LOADER_FLASH).img
+loader-boot: $(UBOOT_OUTPUT_DIR)/$(RKDEV_IMAGE).img
 	./dev-make loader-download-mode
 	./dev-make loader-write-flash
 	./dev-make loader-write-clear

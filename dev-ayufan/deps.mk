@@ -1,4 +1,4 @@
-$(filter tmp/rkbin/%, $(BL31) $(UBOOT_TPL) $(UBOOT_SPL) $(LOADER_BIN) $(ROCKCHIP_TPL)):
+$(filter tmp/rkbin/%, $(BL31) $(UBOOT_TPL) $(UBOOT_SPL) $(RKDEV_LOADER_BIN) $(ROCKCHIP_TPL)):
 	mkdir -p $$(dirname "$@")
 	curl --fail -L https://github.com/ayufan-rock64/rkbin/raw/master/$(subst tmp/rkbin/,,$@) > $@.tmp
 	mv $@.tmp $@

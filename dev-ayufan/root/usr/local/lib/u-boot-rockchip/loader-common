@@ -36,7 +36,7 @@ fi
 case "$PACKAGE_NAME" in
     *-rock64-*)
         SD_LOADER=/usr/lib/u-boot-rock64/rksd_loader.img
-        SPI_LOADER=/usr/lib/u-boot-rock64/rksd_loader.img
+        SPI_LOADER=/usr/lib/u-boot-rock64/rkspi_loader.img
         SPI_OFFSET=$((64*512))
         BOARD=pine64,rock64
         ;;
@@ -64,7 +64,7 @@ case "$PACKAGE_NAME" in
 
     *-rock5b-*)
         SD_LOADER=/usr/lib/u-boot-rock5b/rksd_loader.img
-        SPI_LOADER=/usr/lib/u-boot-rock5b/rksd_loader.img
+        SPI_LOADER=/usr/lib/u-boot-rock5b/rkspi_loader.img
         SPI_OFFSET=$((64*512))
         BOARD=radxa,rock-5b
         ;;
