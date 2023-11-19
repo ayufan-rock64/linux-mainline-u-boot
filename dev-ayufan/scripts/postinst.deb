@@ -7,7 +7,7 @@ case "$1" in
     ;;
 
   configure)
-    echo "Consider upgrading device bootloader with 'rock64_upgrade_bootloader.sh'."
+    echo "Consider upgrading device bootloader with 'upgrade_bootloader.sh'."
     ;;
 
   *)

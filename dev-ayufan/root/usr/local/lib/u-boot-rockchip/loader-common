@@ -1,71 +1,93 @@
 #!/bin/bash
 
+error() {
+    echo "$@" 1>&2
+}
+
 if [[ "$(id -u)" -ne "0" ]]; then
-    echo "This script requires root."
+    error "This script requires root."
     exit 1
 fi
 
 if ! which nandwrite &>/dev/null; then
-    echo "Install mtd-utils with 'apt-get install mtd-utils'"
+    error "Install mtd-utils with 'apt-get install mtd-utils'"
     exit 1
 fi
 
 if ! which flash_erase &>/dev/null; then
-    echo "Install mtd-utils with 'apt-get install mtd-utils'"
+    error "Install mtd-utils with 'apt-get install mtd-utils'"
     exit 1
 fi
 
 if ! PACKAGE_NAME=$(dpkg -S "$0" | cut -d: -f1); then
-    exit "Unknown package installed."
+    error "Unknown package installed."
     exit 1
 fi
 
 if ! debsums -s "${PACKAGE_NAME}"; then
-    echo "Verification of '${PACKAGE_NAME}' failed."
-    echo "Your disk might have got corrupted."
+    error "Verification of '${PACKAGE_NAME}' failed."
+    error "Your disk might have got corrupted."
     if [[ -z "IGNORE_VERIFICATION" ]]; then
-        echo "Use 'export IGNORE_VERIFICATION=1'"
+        error "Use 'export IGNORE_VERIFICATION=1'"
         exit 1
     fi
 fi
 
 case "$PACKAGE_NAME" in
-    *-rockchip-rock64-*)
+    *-rock64-*)
         SD_LOADER=/usr/lib/u-boot-rock64/rksd_loader.img
         SPI_LOADER=/usr/lib/u-boot-rock64/rksd_loader.img
-        BOARD=rock64
+        SPI_OFFSET=$((64*512))
+        BOARD=pine64,rock64
         ;;
 
-    *-rockchip-rockpro64-*)
+    *-rockpro64-*)
         SD_LOADER=/usr/lib/u-boot-rockpro64/rksd_loader.img
         SPI_LOADER=/usr/lib/u-boot-rockpro64/rkspi_loader.img
-        BOARD=rockpro64
+        SPI_OFFSET=$((64*512))
+        BOARD=pine64,rockpro64
         ;;
 
-    *-rockchip-pinebookpro-*)
+    *-pinebookpro-*)
         SD_LOADER=/usr/lib/u-boot-pinebookpro/rksd_loader.img
         SPI_LOADER=/usr/lib/u-boot-pinebookpro/rkspi_loader.img
-        BOARD=pinebookpro
+        SPI_OFFSET=$((64*512))
+        BOARD=pine64,pinebookpro
         ;;
 
-    *-rockchip-rockpi4b-*)
+    *-rockpi4b-*)
         SD_LOADER=/usr/lib/u-boot-rockpi4b/rksd_loader.img
         SPI_LOADER=/usr/lib/u-boot-rockpi4b/rkspi_loader.img
-        BOARD=rockpi4b
+        SPI_OFFSET=$((64*512))
+        BOARD=radxa,rockpi4b
+        ;;
+
+    *-rock5b-*)
+        SD_LOADER=/usr/lib/u-boot-rock5b/rksd_loader.img
+        SPI_LOADER=/usr/lib/u-boot-rock5b/rksd_loader.img
+        SPI_OFFSET=$((64*512))
+        BOARD=radxa,rock-5b
         ;;
 
     *)
-        echo "Cannot detect board from $PACKAGE_NAME."
+        error "Cannot detect board from $PACKAGE_NAME."
         exit 1
         ;;
 esac
 
 if ! grep -qi "$BOARD" /proc/device-tree/compatible; then
-    echo "You are currently running on different board:"
-    echo "$(cat /proc/device-tree/model || true)"
-    echo "It may brick your device or the system unless"
-    echo "you know what are you doing."
-    echo ""
+    error "You are currently running on different board:"
+    error "$(cat /proc/device-tree/model || true)"
+    error "It may brick your device or the system unless"
+    error "you know what are you doing."
+    error ""
+fi
+
+if [[ -f "$SPI_LOADER" ]]; then
+    SPI_SIZE=$(stat -c%s "$SPI_LOADER")
+elif [[ -n "$SPI_LOADER" ]]; then
+    error "The '$SPI_LOADER' is missing."
+    SPI_SIZE=0
 fi
 
 confirm() {
@@ -101,17 +123,37 @@ boot_device() {
     esac
 }
 
-version() {
-    local DEVICE="$(boot_device "$1")"
-
-    echo -n "Current version: "
-    if strings "$DEVICE" | grep "^U-Boot [a-z0-9.-]*$"; then
-        echo -n "Board: "
-        strings "$DEVICE" | grep -E "^board="
-        echo -n "FDT: "
-        strings "$DEVICE" | grep -E "^fdtfile="
+version2() {
+    echo "$1:"
+    if VER=$(strings "$2" | grep "^U-Boot [0-9]*.[0-9]*-[a-z0-9.-]* ("); then
+        echo "- Version: $VER"
+        echo "- Board: $(strings "$2" | grep -E "^board=")"
+        echo "- FDT: $(strings "$2" | grep -E "^fdtfile=")"
     else
-        echo "not installed on $DEVICE."
+        echo "- Not installed on $2."
     fi
     echo
+}
+
+version() {
+    version2 "Current" "$(boot_device "$1")"
+}
+
+find_mtd() {
+    for mtd in /sys/class/mtd/mtd?; do
+        local offset=0
+        [[ ! -e "$mtd/offset" ]] || offset=$(cat "$mtd/offset")
+        local size=$(cat "$mtd/size")
+
+        [[ $offset -le $SPI_OFFSET ]] || continue
+        [[ $(($offset+$size)) -ge $(($SPI_OFFSET+$SPI_SIZE)) ]] || continue
+
+        MTD=$(basename "$mtd")
+        MTD_DEV="/dev/$MTD"
+        MTD_OFFSET="$(($SPI_OFFSET-$offset))"
+        return 0
+    done
+
+    error "Could not find MTD device to wrote $SPI_SIZE bytes at $SPI_OFFSET."
+    return 1
 }

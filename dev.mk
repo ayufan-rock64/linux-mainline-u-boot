@@ -32,7 +32,7 @@ version: .scmversion
 
 deploy: u-boot-package
 	scp u-boot-$(BOARD_TARGET)-$(RELEASE_NAME).deb root@$(TARGET_HOST):
-	ssh root@$(TARGET_HOST) apt install ./u-boot-$(BOARD_TARGET)-$(RELEASE_NAME).deb
-	ssh root@$(TARGET_HOST) rock64_upgrade_bootloader.sh
+	ssh root@$(TARGET_HOST) dpkg -i ./u-boot-$(BOARD_TARGET)-$(RELEASE_NAME).deb
+	#ssh root@$(TARGET_HOST) rock64_upgrade_bootloader.sh
 
 endif
