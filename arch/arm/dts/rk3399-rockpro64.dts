@@ -11,6 +11,10 @@
 / {
 	model = "Pine64 RockPro64 v2.1";
 	compatible = "pine64,rockpro64-v2.1", "pine64,rockpro64", "rockchip,rk3399";
+
+	chosen {
+		stdout-path = "serial2:1500000n8";
+	};
 };
 
 &i2c1 {
