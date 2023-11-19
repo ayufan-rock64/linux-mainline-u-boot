@@ -42,10 +42,6 @@
 		voltage-min-design-microvolt = <3000000>;
 	};
 
-	config {
-		u-boot,spl-payload-offset = <0x80000>; /* @ 512KB */
-	};
-
 	clkin_gmac: external-gmac-clock {
 		compatible = "fixed-clock";
 		clock-frequency = <125000000>;
