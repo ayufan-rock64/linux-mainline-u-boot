@@ -110,10 +110,11 @@ boot_device() {
 
 version2() {
     echo "$1:"
-    if VER=$(strings "$2" | grep "^U-Boot [0-9]*.[0-9]*-[a-z0-9.-]* ("); then
-        echo "- Version: $VER"
-        echo "- Board: $(strings "$2" | grep -E "^board=")"
-        echo "- FDT: $(strings "$2" | grep -E "^fdtfile=")"
+    local match=$(strings "$2" | grep -m 3 -E "^board=|^fdtfile=|^U-Boot [0-9]*.[0-9]*-[a-z0-9.-]* \(")
+    if [[ -n "$match" ]]; then
+        echo "- Version: $(echo "$match" | grep -E "^U-Boot ")"
+        echo "- Board: $(echo "$match" | grep -E "^board=")"
+        echo "- FDT: $(echo "$match" | grep -E "^fdtfile=")"
     else
         echo "- Not installed on $2."
     fi
