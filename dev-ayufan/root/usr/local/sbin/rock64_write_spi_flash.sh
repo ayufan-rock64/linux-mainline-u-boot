@@ -9,20 +9,12 @@ echo "  and it will require that you use eMMC or SD"
 echo "  as your boot device."
 echo ""
 
-if ! MTD=$(grep \"loader\" /proc/mtd | cut -d: -f1); then
-    echo "loader partition on MTD is not found"
-    exit 1
-fi
-
-version "/dev/${MTD}"
+find_mtd
+version "$MTD_DEV"
 confirm
 
-write_nand() {
-    echo "Writing /dev/$MTD with content of $2"
-    flash_erase "/dev/$MTD" 0 0
-    nandwrite "/dev/$MTD" < "$2"
-}
-
-write_nand loader "$SPI_LOADER"
+echo "Writing "$MTD_DEV" with content at $MTD_OFFSET"
+flash_erase "$MTD_DEV" "$MTD_OFFSET" 0
+nandwrite -s "$MTD_OFFSET" "$MTD_DEV" "$SPI_LOADER"
 
 echo Done.

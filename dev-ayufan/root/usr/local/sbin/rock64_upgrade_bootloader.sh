@@ -20,7 +20,6 @@ write_sd() {
 }
 
 write_sd "$MNT_DEV" "$SD_LOADER"
-
 sync
 
 echo Done.
