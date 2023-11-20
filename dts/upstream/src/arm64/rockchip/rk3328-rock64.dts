@@ -14,6 +14,7 @@
 		ethernet0 = &gmac2io;
 		mmc0 = &sdmmc;
 		mmc1 = &emmc;
+		spi0 = &spi0;
 	};
 
 	chosen {
@@ -190,6 +191,14 @@
 		vcc5-supply = <&vcc_io>;
 		vcc6-supply = <&vcc_sys>;
 
+		led1 {
+			label = "diy";
+		};
+
+		led2 {
+			label = "work";
+		};
+
 		regulators {
 			vdd_logic: DCDC_REG1 {
 				regulator-name = "vdd_logic";
@@ -338,6 +347,8 @@
 	status = "okay";
 
 	flash@0 {
+		u-boot,dm-pre-reloc;
+
 		compatible = "jedec,spi-nor";
 		reg = <0>;
 
