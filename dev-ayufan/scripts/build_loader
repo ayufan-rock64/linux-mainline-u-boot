@@ -37,7 +37,7 @@ echo "Appending u-boot.itb at $((UBOOT_OFFSET-IDBLOADER_OFFSET)), block size $BL
 dd if="$UBOOT_DIR/u-boot.itb" of="$OUTPUT.tmp" seek=$((UBOOT_OFFSET-IDBLOADER_OFFSET)) bs="$BLOCK_SIZE" conv=notrunc
 
 SIZE=$(stat -c%s "$OUTPUT.tmp")
-MAX_SIZE=$((4*1024*1024-IDBLOADER_OFFSET*BLOCK_SIZE))
+MAX_SIZE=$((16*1024*1024-IDBLOADER_OFFSET*BLOCK_SIZE))
 
 if [[ $SIZE -gt $MAX_SIZE ]]; then
 	echo "The resulting image is $SIZE which is larger than $MAX_SIZE."
